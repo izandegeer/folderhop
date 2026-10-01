@@ -1,0 +1,9 @@
+{
+  "description": "Elige una carpeta base y salta entre sus subcarpetas desde la barra lateral, abriendo cada una como workspace",
+  "view.name": "Carpetas",
+  "welcome": "¡Bienvenido a FolderHop! Elige la carpeta base que contiene las carpetas entre las que quieres saltar (asignaturas, proyectos, clientes...).\n[Elegir carpeta base](command:folderhop.chooseRoot)",
+  "command.open": "Abrir carpeta",
+  "command.chooseRoot": "Elegir carpeta base",
+  "command.refresh": "Refrescar",
+  "config.root": "Carpeta base cuyas subcarpetas aparecen en la barra lateral. Admite ~ para la carpeta personal."
+}

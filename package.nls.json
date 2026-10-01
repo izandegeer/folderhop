@@ -1,0 +1,9 @@
+{
+  "description": "Pick a base folder and hop between its subfolders from the sidebar, opening each one as your workspace",
+  "view.name": "Folders",
+  "welcome": "Welcome to FolderHop! Pick the base folder that holds the folders you want to hop between (your courses, projects, clients...).\n[Choose base folder](command:folderhop.chooseRoot)",
+  "command.open": "Open folder",
+  "command.chooseRoot": "Choose base folder",
+  "command.refresh": "Refresh",
+  "config.root": "Base folder whose subfolders are listed in the sidebar. Supports ~ for your home folder."
+}

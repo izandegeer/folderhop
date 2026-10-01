@@ -1,39 +1,48 @@
-# Asignaturas
+# FolderHop
 
-Extensión de VS Code para saltar entre las carpetas de tus asignaturas. Añade un icono de birrete a la barra lateral; al pulsarlo ves tus asignaturas y, con un clic, VS Code abre esa carpeta como workspace en la misma ventana. La asignatura abierta sale marcada con un ✓.
+Hop between folders like Mario between pipes. FolderHop adds a pipe icon to the VS Code sidebar: pick a base folder once, and every subfolder becomes a destination. Click one and VS Code opens it as your workspace in the same window. The folder you are in is marked with a ✓.
 
-## Instalar
+*[Versión en español más abajo](#en-español)*
 
-1. Descarga el archivo `.vsix` de la última versión en [Releases](https://github.com/izandegeer/vscode-asignaturas/releases/latest).
-2. En VS Code, abre la vista de Extensiones, pulsa los tres puntos (`...`) de arriba y elige **Install from VSIX...**. Selecciona el archivo descargado.
+## Use cases
 
-   Desde el terminal también vale: `code --install-extension asignaturas-1.0.0.vsix`
+- **Studies**: one folder per course or subject. This is where FolderHop was born, to jump between the subjects of a vocational web development degree without hunting through Finder.
+- **Clients or freelance work**: one folder per client.
+- **Side projects**: your `~/Projects` folder, one click per repo.
+- **Anything else** organised as "a folder full of folders".
 
-3. Pulsa el birrete de la barra lateral y luego **Elegir carpeta**.
+## Install
 
-## Cómo organizar las carpetas
+1. Download the `.vsix` file from the [latest release](https://github.com/izandegeer/folderhop/releases/latest).
+2. In VS Code, open the Extensions view, click `...` at the top and choose **Install from VSIX...**.
 
-Elige la carpeta que contiene una subcarpeta por asignatura. Si las nombras como `CÓDIGO - Nombre`, el panel enseña el código en grande y el nombre al lado:
+   Or from a terminal: `code --install-extension folderhop-2.0.0.vsix`
 
-```
-Curso/
-├── DAW - Despliegue de Aplicaciones Web/
-├── DWC - Desarrollo Web Entorno Cliente/
-└── DWS - Desarrollo Web Entorno Servidor/
-```
+3. Click the pipe icon in the sidebar, then **Choose base folder**.
 
-Las carpetas sin guion también funcionan; se muestran con su nombre tal cual. Las que empiezan por `.` o `_` se ignoran (útil para un `_archivo`).
+## Tips
 
-Para cambiar de carpeta más adelante, usa el icono de carpeta de arriba del panel o el ajuste `asignaturas.root`.
+- Name folders `CODE - Name` (for example `DWS - Web Development Server Side`) and the sidebar shows the code in bold with the name next to it. Any other name works too and is shown as is.
+- Folders starting with `.` or `_` are hidden, handy for an `_archive` folder.
+- Change the base folder with the folder icon at the top of the panel or the `folderhop.root` setting.
+- The interface follows your VS Code language (English and Spanish).
 
-## Desarrollo
+## En español
 
-Es JavaScript sin dependencias: `extension.js` y `package.json`. Para generar el `.vsix`:
+FolderHop añade una tubería a la barra lateral de VS Code. Eliges una carpeta base y cada subcarpeta se convierte en un destino: al pulsarla, VS Code la abre como workspace en la misma ventana. Nació para saltar entre las asignaturas del ciclo de DAW (una carpeta por asignatura, con nombres como `DWS - Desarrollo Web Entorno Servidor`), pero sirve para cualquier carpeta llena de carpetas: proyectos, clientes, repos...
+
+Para instalarla, descarga el `.vsix` de la [última versión](https://github.com/izandegeer/folderhop/releases/latest) y en VS Code ve a Extensiones > `...` > **Install from VSIX...**. Luego pulsa la tubería y **Elegir carpeta base**.
+
+Si tenías instalada la versión anterior (**Asignaturas**), desinstálala: FolderHop recupera tu carpeta automáticamente.
+
+## Development
+
+Plain JavaScript, no dependencies. To build the `.vsix`:
 
 ```sh
 npx @vscode/vsce package
 ```
 
-## Licencia
+## License
 
 MIT

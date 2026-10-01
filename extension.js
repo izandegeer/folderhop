@@ -3,92 +3,104 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-function carpetaRaiz() {
-  const root = vscode.workspace.getConfiguration('asignaturas').get('root') || '';
+function baseFolder() {
+  const root = vscode.workspace.getConfiguration('folderhop').get('root') || '';
   return root.trim().replace(/^~(?=$|[\\/])/, os.homedir());
 }
 
-// Carpetas "CÓDIGO - Nombre" de la raíz, ordenadas por código
-function leerAsignaturas() {
-  const root = carpetaRaiz();
+// Subfolders of the base folder. "CODE - Name" folders show the code as label
+// and the name as description; hidden (.) and archived (_) folders are skipped.
+function readFolders() {
+  const root = baseFolder();
   if (!root) return null;
-  let entradas;
+  let entries;
   try {
-    entradas = fs.readdirSync(root, { withFileTypes: true });
+    entries = fs.readdirSync(root, { withFileTypes: true });
   } catch {
     return null;
   }
-  return entradas
+  return entries
     .filter((e) => e.isDirectory() && !e.name.startsWith('.') && !e.name.startsWith('_'))
     .map((e) => {
-      const [codigo, ...resto] = e.name.split(' - ');
-      return { codigo, nombre: resto.join(' - '), ruta: path.join(root, e.name) };
+      const [label, ...rest] = e.name.split(' - ');
+      return { label, description: rest.join(' - '), fsPath: path.join(root, e.name) };
     })
-    .sort((a, b) => a.codigo.localeCompare(b.codigo));
+    .sort((a, b) => a.label.localeCompare(b.label));
 }
 
-function esActual(ruta) {
-  const carpetas = vscode.workspace.workspaceFolders || [];
-  return carpetas.some((f) => path.resolve(f.uri.fsPath) === path.resolve(ruta));
+function isCurrent(fsPath) {
+  const open = vscode.workspace.workspaceFolders || [];
+  return open.some((f) => path.resolve(f.uri.fsPath) === path.resolve(fsPath));
 }
 
-class ProveedorAsignaturas {
+class FolderProvider {
   constructor() {
-    this._cambio = new vscode.EventEmitter();
-    this.onDidChangeTreeData = this._cambio.event;
+    this._changed = new vscode.EventEmitter();
+    this.onDidChangeTreeData = this._changed.event;
   }
 
-  refrescar() {
-    this._cambio.fire();
+  refresh() {
+    this._changed.fire();
   }
 
-  getTreeItem(asignatura) {
-    const item = new vscode.TreeItem(asignatura.codigo);
-    item.description = asignatura.nombre;
-    item.tooltip = asignatura.ruta;
-    item.iconPath = new vscode.ThemeIcon(esActual(asignatura.ruta) ? 'check' : 'folder');
-    item.command = { command: 'asignaturas.abrir', title: 'Abrir asignatura', arguments: [asignatura] };
+  getTreeItem(folder) {
+    const item = new vscode.TreeItem(folder.label);
+    const current = isCurrent(folder.fsPath);
+    item.description = folder.description;
+    item.tooltip = current ? `${folder.fsPath}\n${vscode.l10n.t('You are here')}` : folder.fsPath;
+    item.iconPath = new vscode.ThemeIcon(current ? 'check' : 'folder');
+    item.command = { command: 'folderhop.open', title: 'Open', arguments: [folder] };
     return item;
   }
 
-  getChildren(padre) {
-    if (padre) return [];
-    // Sin carpeta válida la lista queda vacía y VS Code muestra el botón "Elegir carpeta"
-    return leerAsignaturas() || [];
+  getChildren(parent) {
+    if (parent) return [];
+    // An empty list makes VS Code show the welcome view with the "choose" button
+    return readFolders() || [];
   }
 }
 
-async function elegirCarpeta() {
-  const eleccion = await vscode.window.showOpenDialog({
+async function chooseRoot() {
+  const picked = await vscode.window.showOpenDialog({
     canSelectFolders: true,
     canSelectFiles: false,
     canSelectMany: false,
-    openLabel: 'Usar esta carpeta',
-    title: 'Carpeta con una subcarpeta por asignatura',
+    openLabel: vscode.l10n.t('Use this folder'),
+    title: vscode.l10n.t('Base folder (one subfolder per destination)'),
   });
-  if (!eleccion) return;
+  if (!picked) return;
   await vscode.workspace
-    .getConfiguration('asignaturas')
-    .update('root', eleccion[0].fsPath, vscode.ConfigurationTarget.Global);
+    .getConfiguration('folderhop')
+    .update('root', picked[0].fsPath, vscode.ConfigurationTarget.Global);
+}
+
+// Users of the old "Asignaturas" extension keep their folder
+async function migrateFromAsignaturas() {
+  const config = vscode.workspace.getConfiguration('folderhop');
+  if (config.get('root')) return;
+  const old = vscode.workspace.getConfiguration('asignaturas').get('root');
+  if (old) await config.update('root', old, vscode.ConfigurationTarget.Global);
 }
 
 function activate(context) {
-  const proveedor = new ProveedorAsignaturas();
+  const provider = new FolderProvider();
 
   context.subscriptions.push(
-    vscode.window.registerTreeDataProvider('asignaturas.lista', proveedor),
-    vscode.commands.registerCommand('asignaturas.refrescar', () => proveedor.refrescar()),
-    vscode.commands.registerCommand('asignaturas.elegirCarpeta', elegirCarpeta),
-    vscode.commands.registerCommand('asignaturas.abrir', (asignatura) => {
-      if (esActual(asignatura.ruta)) return;
-      vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(asignatura.ruta), {
+    vscode.window.registerTreeDataProvider('folderhop.list', provider),
+    vscode.commands.registerCommand('folderhop.refresh', () => provider.refresh()),
+    vscode.commands.registerCommand('folderhop.chooseRoot', chooseRoot),
+    vscode.commands.registerCommand('folderhop.open', (folder) => {
+      if (isCurrent(folder.fsPath)) return;
+      vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(folder.fsPath), {
         forceNewWindow: false,
       });
     }),
     vscode.workspace.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration('asignaturas.root')) proveedor.refrescar();
+      if (e.affectsConfiguration('folderhop.root')) provider.refresh();
     })
   );
+
+  migrateFromAsignaturas().catch(() => {});
 }
 
 function deactivate() {}

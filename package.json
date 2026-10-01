@@ -1,96 +1,110 @@
 {
-  "name": "asignaturas",
-  "displayName": "Asignaturas",
-  "description": "Panel lateral para saltar entre las carpetas de tus asignaturas abriendo cada una como workspace",
-  "version": "1.0.0",
+  "name": "folderhop",
+  "displayName": "FolderHop",
+  "description": "%description%",
+  "version": "2.0.0",
   "publisher": "izandegeer",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/izandegeer/folderhop"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
     "Other"
   ],
+  "keywords": [
+    "folders",
+    "workspace",
+    "switch",
+    "projects",
+    "carpetas"
+  ],
   "main": "./extension.js",
-  "activationEvents": [],
+  "l10n": "./l10n",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "asignaturas",
-          "title": "Asignaturas",
-          "icon": "media/birrete.svg"
+          "id": "folderhop",
+          "title": "FolderHop",
+          "icon": "media/pipe.svg"
         }
       ]
     },
     "views": {
-      "asignaturas": [
+      "folderhop": [
         {
-          "id": "asignaturas.lista",
-          "name": "Asignaturas"
+          "id": "folderhop.list",
+          "name": "%view.name%"
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "folderhop.list",
+        "contents": "%welcome%"
+      }
+    ],
     "commands": [
       {
-        "command": "asignaturas.abrir",
-        "title": "Abrir asignatura"
+        "command": "folderhop.open",
+        "title": "%command.open%"
       },
       {
-        "command": "asignaturas.refrescar",
-        "title": "Refrescar",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "asignaturas.elegirCarpeta",
-        "title": "Elegir carpeta de asignaturas",
+        "command": "folderhop.chooseRoot",
+        "title": "%command.chooseRoot%",
+        "category": "FolderHop",
         "icon": "$(folder-opened)"
+      },
+      {
+        "command": "folderhop.refresh",
+        "title": "%command.refresh%",
+        "category": "FolderHop",
+        "icon": "$(refresh)"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "asignaturas.elegirCarpeta",
-          "when": "view == asignaturas.lista",
+          "command": "folderhop.chooseRoot",
+          "when": "view == folderhop.list",
           "group": "navigation"
         },
         {
-          "command": "asignaturas.refrescar",
-          "when": "view == asignaturas.lista",
+          "command": "folderhop.refresh",
+          "when": "view == folderhop.list",
           "group": "navigation"
         }
       ],
       "commandPalette": [
         {
-          "command": "asignaturas.abrir",
+          "command": "folderhop.open",
           "when": "false"
         }
       ]
     },
     "configuration": {
-      "title": "Asignaturas",
+      "title": "FolderHop",
       "properties": {
-        "asignaturas.root": {
+        "folderhop.root": {
           "type": "string",
           "default": "",
-          "description": "Carpeta que contiene una subcarpeta por asignatura. Admite ~ para la carpeta personal."
+          "description": "%config.root%"
         }
       }
-    },
-    "viewsWelcome": [
-      {
-        "view": "asignaturas.lista",
-        "contents": "Elige la carpeta donde tienes una subcarpeta por asignatura (por ejemplo \"DWS - Desarrollo Web Entorno Servidor\").\n[Elegir carpeta](command:asignaturas.elegirCarpeta)"
-      }
-    ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/izandegeer/vscode-asignaturas"
+    }
   },
   "files": [
     "extension.js",
     "media/",
+    "l10n/",
+    "package.nls*.json",
     "LICENSE"
   ]
 }
