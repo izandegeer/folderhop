@@ -4,13 +4,14 @@ const os = require('os');
 const path = require('path');
 
 function carpetaRaiz() {
-  const root = vscode.workspace.getConfiguration('asignaturas').get('root');
-  return root.replace(/^~(?=$|\/)/, os.homedir());
+  const root = vscode.workspace.getConfiguration('asignaturas').get('root') || '';
+  return root.trim().replace(/^~(?=$|[\\/])/, os.homedir());
 }
 
 // Carpetas "CÓDIGO - Nombre" de la raíz, ordenadas por código
 function leerAsignaturas() {
   const root = carpetaRaiz();
+  if (!root) return null;
   let entradas;
   try {
     entradas = fs.readdirSync(root, { withFileTypes: true });
@@ -52,13 +53,23 @@ class ProveedorAsignaturas {
 
   getChildren(padre) {
     if (padre) return [];
-    const asignaturas = leerAsignaturas();
-    if (!asignaturas) {
-      vscode.window.showWarningMessage(`Asignaturas: no encuentro la carpeta ${carpetaRaiz()}`);
-      return [];
-    }
-    return asignaturas;
+    // Sin carpeta válida la lista queda vacía y VS Code muestra el botón "Elegir carpeta"
+    return leerAsignaturas() || [];
   }
+}
+
+async function elegirCarpeta() {
+  const eleccion = await vscode.window.showOpenDialog({
+    canSelectFolders: true,
+    canSelectFiles: false,
+    canSelectMany: false,
+    openLabel: 'Usar esta carpeta',
+    title: 'Carpeta con una subcarpeta por asignatura',
+  });
+  if (!eleccion) return;
+  await vscode.workspace
+    .getConfiguration('asignaturas')
+    .update('root', eleccion[0].fsPath, vscode.ConfigurationTarget.Global);
 }
 
 function activate(context) {
@@ -67,6 +78,7 @@ function activate(context) {
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider('asignaturas.lista', proveedor),
     vscode.commands.registerCommand('asignaturas.refrescar', () => proveedor.refrescar()),
+    vscode.commands.registerCommand('asignaturas.elegirCarpeta', elegirCarpeta),
     vscode.commands.registerCommand('asignaturas.abrir', (asignatura) => {
       if (esActual(asignatura.ruta)) return;
       vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(asignatura.ruta), {

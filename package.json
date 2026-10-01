@@ -1,35 +1,70 @@
 {
   "name": "asignaturas",
   "displayName": "Asignaturas",
-  "description": "Panel lateral para cambiar de asignatura de CFGS-2 abriendo su carpeta como workspace",
-  "version": "0.1.0",
+  "description": "Panel lateral para saltar entre las carpetas de tus asignaturas abriendo cada una como workspace",
+  "version": "1.0.0",
   "publisher": "izandegeer",
-  "license": "UNLICENSED",
-  "engines": { "vscode": "^1.85.0" },
-  "categories": ["Other"],
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
   "main": "./extension.js",
   "activationEvents": [],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
-        { "id": "asignaturas", "title": "Asignaturas", "icon": "media/birrete.svg" }
+        {
+          "id": "asignaturas",
+          "title": "Asignaturas",
+          "icon": "media/birrete.svg"
+        }
       ]
     },
     "views": {
       "asignaturas": [
-        { "id": "asignaturas.lista", "name": "Asignaturas" }
+        {
+          "id": "asignaturas.lista",
+          "name": "Asignaturas"
+        }
       ]
     },
     "commands": [
-      { "command": "asignaturas.abrir", "title": "Abrir asignatura" },
-      { "command": "asignaturas.refrescar", "title": "Refrescar", "icon": "$(refresh)" }
+      {
+        "command": "asignaturas.abrir",
+        "title": "Abrir asignatura"
+      },
+      {
+        "command": "asignaturas.refrescar",
+        "title": "Refrescar",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "asignaturas.elegirCarpeta",
+        "title": "Elegir carpeta de asignaturas",
+        "icon": "$(folder-opened)"
+      }
     ],
     "menus": {
       "view/title": [
-        { "command": "asignaturas.refrescar", "when": "view == asignaturas.lista", "group": "navigation" }
+        {
+          "command": "asignaturas.elegirCarpeta",
+          "when": "view == asignaturas.lista",
+          "group": "navigation"
+        },
+        {
+          "command": "asignaturas.refrescar",
+          "when": "view == asignaturas.lista",
+          "group": "navigation"
+        }
       ],
       "commandPalette": [
-        { "command": "asignaturas.abrir", "when": "false" }
+        {
+          "command": "asignaturas.abrir",
+          "when": "false"
+        }
       ]
     },
     "configuration": {
@@ -37,10 +72,25 @@
       "properties": {
         "asignaturas.root": {
           "type": "string",
-          "default": "~/Documents/CFGS/CFGS-2",
-          "description": "Carpeta que contiene una subcarpeta por asignatura (\"CÓDIGO - Nombre\")."
+          "default": "",
+          "description": "Carpeta que contiene una subcarpeta por asignatura. Admite ~ para la carpeta personal."
         }
       }
-    }
-  }
+    },
+    "viewsWelcome": [
+      {
+        "view": "asignaturas.lista",
+        "contents": "Elige la carpeta donde tienes una subcarpeta por asignatura (por ejemplo \"DWS - Desarrollo Web Entorno Servidor\").\n[Elegir carpeta](command:asignaturas.elegirCarpeta)"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/izandegeer/vscode-asignaturas"
+  },
+  "files": [
+    "extension.js",
+    "media/",
+    "LICENSE"
+  ]
 }
