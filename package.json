@@ -1,0 +1,46 @@
+{
+  "name": "asignaturas",
+  "displayName": "Asignaturas",
+  "description": "Panel lateral para cambiar de asignatura de CFGS-2 abriendo su carpeta como workspace",
+  "version": "0.1.0",
+  "publisher": "izandegeer",
+  "license": "UNLICENSED",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "main": "./extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        { "id": "asignaturas", "title": "Asignaturas", "icon": "media/birrete.svg" }
+      ]
+    },
+    "views": {
+      "asignaturas": [
+        { "id": "asignaturas.lista", "name": "Asignaturas" }
+      ]
+    },
+    "commands": [
+      { "command": "asignaturas.abrir", "title": "Abrir asignatura" },
+      { "command": "asignaturas.refrescar", "title": "Refrescar", "icon": "$(refresh)" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "asignaturas.refrescar", "when": "view == asignaturas.lista", "group": "navigation" }
+      ],
+      "commandPalette": [
+        { "command": "asignaturas.abrir", "when": "false" }
+      ]
+    },
+    "configuration": {
+      "title": "Asignaturas",
+      "properties": {
+        "asignaturas.root": {
+          "type": "string",
+          "default": "~/Documents/CFGS/CFGS-2",
+          "description": "Carpeta que contiene una subcarpeta por asignatura (\"CÓDIGO - Nombre\")."
+        }
+      }
+    }
+  }
+}
